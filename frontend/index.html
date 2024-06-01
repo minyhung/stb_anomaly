@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>셋톱박스 데이터</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #2c3e50; color: #ecf0f1; text-align: center; }
+    #container { margin-top: 50px; }
+    input { padding: 10px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; }
+    #data { margin-top: 20px; text-align: left; }
+    .data-entry { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>셋톱박스 데이터</h1>
+    <input type="text" id="deviceId" placeholder="디바이스 ID 입력">
+    <button onclick="fetchData()">데이터 가져오기</button>
+    <div id="data">
+      <p><strong>Measurement Time</strong> | <strong>upper_power2</strong> | <strong>upper_snr</strong> | <strong>lower_power</strong> | <strong>lower_snr</strong></p>
+    </div>
+  </div>
+  <script>
+    let currentDeviceId = null;
+
+    const ws = new WebSocket('ws://localhost:5000');
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      const deviceId = document.getElementById('deviceId').value;
+      if (message.group === deviceId) {
+        fetchData(); // 실시간으로 데이터 갱신
+      }
+    };
+
+    async function fetchData() {
+      const deviceId = document.getElementById('deviceId').value;
+      if (deviceId !== currentDeviceId) {
+        clearData();
+        currentDeviceId = deviceId;
+      }
+
+      const response = await fetch(`http://localhost:5000/api/data/${deviceId}`);
+      const data = await response.json();
+      updateData(data);
+    }
+
+    function updateData(data) {
+      const dataContainer = document.getElementById('data');
+      dataContainer.innerHTML = '<p><strong>Measurement Time</strong> | <strong>upper_power2</strong> | <strong>upper_snr</strong> | <strong>lower_power</strong> | <strong>lower_snr</strong></p>';
+      data.forEach(entry => {
+        const p = document.createElement('p');
+        p.className = 'data-entry';
+        p.innerText = `${entry.measurement_time} | ${entry.random_samples.upper_power2 || 'N/A'} | ${entry.random_samples.upper_snr || 'N/A'} | ${entry.random_samples.lower_power || 'N/A'} | ${entry.random_samples.lower_snr || 'N/A'}`;
+        dataContainer.appendChild(p);
+      });
+    }
+
+    function clearData() {
+      const dataContainer = document.getElementById('data');
+      dataContainer.innerHTML = '<p><strong>Measurement Time</strong> | <strong>upper_power2</strong> | <strong>upper_snr</strong> | <strong>lower_power</strong> | <strong>lower_snr</strong></p>';
+    }
+
+    setInterval(fetchData, 5000); // 5초마다 데이터 가져오기
+  </script>
+</body>
+</html>
