@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const http = require('http');
 const WebSocket = require('ws');
-const { execFile } = require('child_process');  // exec -> execFile
+const { spawn } = require('child_process');
 const app = express();
 const port = 5000;
 
@@ -13,12 +13,18 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 let logData = [];
 
 // Python 스크립트 실행
-execFile('python3', ['../logdata.py'], { maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
-  if (error) {
-    console.error(`Error executing python script: ${error}`);
-    return;
-  }
-  console.log(`Python script output: ${stdout}`);
+const pythonProcess = spawn('python3', ['../logdata.py']);
+
+pythonProcess.stdout.on('data', (data) => {
+  console.log(`Python script output: ${data}`);
+});
+
+pythonProcess.stderr.on('data', (data) => {
+  console.error(`Python script error: ${data}`);
+});
+
+pythonProcess.on('close', (code) => {
+  console.log(`Python script exited with code ${code}`);
 });
 
 const server = http.createServer(app);
