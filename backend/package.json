@@ -1,18 +1,15 @@
 {
-  "name": "backend",
+  "name": "stb_anomaly_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "concurrently \"python3 ../logdata.py\" \"node server.js\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.2",
-    "csv-parser": "^3.0.0",
-    "express": "^4.19.2",
-    "ws": "^8.17.0"
+    "concurrently": "^6.2.1",
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0",
+    "ws": "^7.5.3"
   }
 }
