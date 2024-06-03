@@ -4,12 +4,14 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "concurrently \"python3 ../logdata.py\" \"node server.js\""
+    "start": "concurrently \"uvicorn logdata:app --host 0.0.0.0 --port 5001\" \"node server.js\""
   },
   "dependencies": {
     "concurrently": "^6.2.1",
     "express": "^4.17.1",
     "body-parser": "^1.19.0",
-    "ws": "^7.5.3"
+    "ws": "^7.5.3",
+    "node-fetch": "^2.6.1"  // 추가된 부분
   }
 }
+
