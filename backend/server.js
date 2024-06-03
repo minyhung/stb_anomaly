@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const http = require('http');
 const WebSocket = require('ws');
-const { exec } = require('child_process');  // 추가된 부분
+const { execFile } = require('child_process');  // exec -> execFile
 const app = express();
 const port = 5000;
 
@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 let logData = [];
 
 // Python 스크립트 실행
-exec('python3 ../logdata.py', (error, stdout, stderr) => {
+execFile('python3', ['../logdata.py'], { maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
   if (error) {
     console.error(`Error executing python script: ${error}`);
     return;
@@ -49,3 +49,4 @@ app.get('/api/data/:cellNumber', (req, res) => {
 server.listen(port, '0.0.0.0', () => {
   console.log(`서버가 http://0.0.0.0:${port} 에서 실행 중입니다.`);
 });
+
