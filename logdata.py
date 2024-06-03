@@ -8,11 +8,8 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-df1 = pd.read_csv("./settop_0527.csv", index_col=0)   # 상대 경로로 수정
-#IP 주소 변경해야할듯
-#도커 이미지 2개 생성해서 올리고
-#
-
+df1 = pd.read_csv("../settop_0527.csv", index_col=0)   # 경로 수정
+df2 = pd.read_csv("../settop.csv", index_col=0)   # 경로 수정
 
 @app.route('/api/current_time', methods=['GET'])
 def get_current_time():
