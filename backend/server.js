@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const http = require('http');
 const WebSocket = require('ws');
-const { spawn } = require('child_process');
+const fetch = require('node-fetch'); // node-fetch 모듈 추가
 const app = express();
 const port = 5000;
 
@@ -11,26 +11,6 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 let logData = [];
-
-// Python 스크립트 실행
-const options = {
-  stdio: ['ignore', 'pipe', 'pipe'], // Redirect stderr to a pipe
-  maxBuffer: 1024 * 1024 * 10 // Increase buffer size to 10MB
-};
-
-const pythonProcess = spawn('python3', ['../logdata.py'], options);
-
-pythonProcess.stdout.on('data', (data) => {
-  console.log(`Python script output: ${data}`);
-});
-
-pythonProcess.stderr.on('data', (data) => {
-  console.error(`Python script error: ${data}`);
-});
-
-pythonProcess.on('close', (code) => {
-  console.log(`Python script exited with code ${code}`);
-});
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -51,13 +31,22 @@ app.post('/api/log', (req, res) => {
 });
 
 // API 엔드포인트: 특정 셀 번호에 대한 데이터 가져오기
-app.get('/api/data/:cellNumber', (req, res) => {
+app.get('/api/data/:cellNumber', async (req, res) => {
   const cellNumber = req.params.cellNumber;
-  const data = logData.filter(entry => entry.group === cellNumber);
-  res.json(data);
+  try {
+    const response = await fetch(`http://localhost:5001/api/data/${cellNumber}`);
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 server.listen(port, '0.0.0.0', () => {
   console.log(`서버가 http://0.0.0.0:${port} 에서 실행 중입니다.`);
 });
+
 
