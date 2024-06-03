@@ -4,31 +4,32 @@ from datetime import datetime, timedelta
 import logging
 import time
 import requests
-from flask import Flask, jsonify
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
-app = Flask(__name__)
+app = FastAPI()
 
 df1 = pd.read_csv("../settop_0527.csv", index_col=0)   # 경로 수정
 df2 = pd.read_csv("../settop.csv", index_col=0)   # 경로 수정
 
-@app.route('/api/current_time', methods=['GET'])
-def get_current_time():
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    return jsonify({'current_time': current_time})
+logData = []
 
-@app.route('/api/data/<device_id>', methods=['GET'])
-def get_device_data(device_id):
+@app.get("/api/current_time")
+async def get_current_time():
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return JSONResponse(content={'current_time': current_time})
+
+@app.get("/api/data/{device_id}")
+async def get_device_data(device_id: str):
     data = [entry for entry in logData if entry['group'] == device_id]
-    return jsonify(data)
+    return JSONResponse(content=data)
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger()
 
-# Flask 서버 주소
+# FastAPI 서버 주소
 server_url = "http://localhost:5000/api/log"
-
-logData = []
 
 def log_random_samples_by_group(df, group_column, columns, start_time, interval_minutes, iterations=1000):
     global logData
@@ -68,5 +69,7 @@ interval_minutes = 10
 # 로그 기록 시작
 log_random_samples_by_group(df1, 'cell_number', ['upper_power2', 'upper_snr', 'lower_power', 'lower_snr'], start_time, interval_minutes)
 
-if __name__ == '__main__':
-    app.run(port=5001)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5001)
+
