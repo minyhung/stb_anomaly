@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const http = require('http');
 const WebSocket = require('ws');
+const { exec } = require('child_process');  // 추가된 부분
 const app = express();
 const port = 5000;
 
@@ -10,6 +11,15 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 let logData = [];
+
+// Python 스크립트 실행
+exec('python3 ../logdata.py', (error, stdout, stderr) => {
+  if (error) {
+    console.error(`Error executing python script: ${error}`);
+    return;
+  }
+  console.log(`Python script output: ${stdout}`);
+});
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
