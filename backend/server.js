@@ -13,7 +13,12 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 let logData = [];
 
 // Python 스크립트 실행
-const pythonProcess = spawn('python3', ['../logdata.py']);
+const options = {
+  stdio: ['ignore', 'pipe', 'pipe'], // Redirect stderr to a pipe
+  maxBuffer: 1024 * 1024 * 10 // Increase buffer size to 10MB
+};
+
+const pythonProcess = spawn('python3', ['../logdata.py'], options);
 
 pythonProcess.stdout.on('data', (data) => {
   console.log(`Python script output: ${data}`);
