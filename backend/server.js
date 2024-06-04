@@ -4,8 +4,13 @@ const path = require('path');
 const http = require('http');
 const WebSocket = require('ws');
 const fetch = require('node-fetch');
+const cors = require('cors'); // cors 패키지 추가
+
 const app = express();
 const port = 5000;
+
+// CORS 설정 추가
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
