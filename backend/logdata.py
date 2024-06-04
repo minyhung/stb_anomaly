@@ -6,11 +6,16 @@ import time
 import requests
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+import os
 
 app = FastAPI()
 
-df1 = pd.read_csv("../settop_0527.csv", index_col=0)   # 경로 수정
-df2 = pd.read_csv("../settop.csv", index_col=0)   # 경로 수정
+# 현재 파일의 디렉토리 경로 가져오기
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 절대 경로로 파일 읽기
+df1 = pd.read_csv(os.path.join(current_dir, "../settop_0527.csv"), index_col=0)
+df2 = pd.read_csv(os.path.join(current_dir, "../settop.csv"), index_col=0)
 
 logData = []
 
