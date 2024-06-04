@@ -27,6 +27,10 @@ async def get_current_time():
 @app.get("/api/data/{device_id}")
 async def get_device_data(device_id: str):
     data = [entry for entry in logData if entry['group'] == device_id]
+    # 디버깅을 위해 로그 추가
+    logging.info(f"Device ID: {device_id}, Data: {data}")
+    if not data:
+        return JSONResponse(content={"message": "No data found"}, status_code=404)
     return JSONResponse(content=data)
 
 # 로깅 설정
@@ -77,5 +81,3 @@ log_random_samples_by_group(df1, 'cell_number', ['upper_power2', 'upper_snr', 'l
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5001)
-
-
