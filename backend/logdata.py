@@ -27,7 +27,6 @@ async def get_current_time():
 @app.get("/api/data/{device_id}")
 async def get_device_data(device_id: str):
     data = [entry for entry in logData if entry['group'] == device_id]
-    # 디버깅을 위해 로그 추가
     logging.info(f"Device ID: {device_id}, Data: {data}")
     if not data:
         return JSONResponse(content={"message": "No data found"}, status_code=404)
@@ -38,7 +37,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger()
 
 # FastAPI 서버 주소
-server_url = "http://localhost:5000/api/log"
+server_url = "http://43.200.14.95:5000/api/log"  # 퍼블릭 IP 사용
 
 def log_random_samples_by_group(df, group_column, columns, start_time, interval_minutes, iterations=1000):
     global logData
@@ -58,6 +57,7 @@ def log_random_samples_by_group(df, group_column, columns, start_time, interval_
         for entry in log_entries:
             logger.info(entry)
             logData.append(entry)
+            logging.info(f"Log entry added: {entry}")
             try:
                 response = requests.post(server_url, json=entry)
                 if response.status_code != 200:
