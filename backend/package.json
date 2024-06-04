@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "concurrently \"python -m uvicorn logdata:app --host 0.0.0.0 --port 5001\" \"node server.js\""
+    "start": "concurrently \"nohup python -m uvicorn logdata:app --host 0.0.0.0 --port 5001 &\" \"node server.js\""
   },
   "dependencies": {
     "concurrently": "^6.2.1",
